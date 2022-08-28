@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "ES2015",
+    "lib": ["ES2015"],
+    "strict": true,
+    "outDir": "dist",
+    "experimentalDecorators": true,
+  },
+  "include": ["src/**/*.ts"]
+}
