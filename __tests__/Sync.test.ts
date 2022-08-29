@@ -2,7 +2,7 @@ import { test, expect } from "@jest/globals";
 import { SimplifiedCalendarEvent, simplifyCalendarEvent } from "../src/SimplifiedCalendarEvent";
 import { getEventUpdates, syncEventUpdate, EventUpdate, copyEvent } from "../src/Sync";
 import { CalendarEventMock, CalendarMock } from "./Mock";
-import { packageName } from "../src/Constant";
+import { abbreviatedPackageName } from "../src/Constant";
 
 test('getEventUpdates', () => {
   const before = [
@@ -222,7 +222,7 @@ test("syncEventUpdate", () => {
   result.sort((e1: GoogleAppsScript.Calendar.CalendarEvent, e2: GoogleAppsScript.Calendar.CalendarEvent) =>
     e1.getId().localeCompare(e2.getId()));
 
-  const originalEventIdKey = [packageName, "original-event-id"].join("-");
+  const originalEventIdKey = [abbreviatedPackageName, "original-event-id"].join("-");
 
   // the same as after except id, lastUpdated, and tags
   const expectedResult = [
