@@ -1,6 +1,6 @@
 import { SimplifiedCalendarEvent, simplifyCalendarEvent, compareCalendarEvent } from "./SimplifiedCalendarEvent";
 import { CalendarEventFilter } from "./CalendarEventFilter";
-import { abbreviatedPackageName } from "./Constant";
+import { packageName, abbreviatedPackageName } from "./Constant";
 
 // An update of an event in an original calendar
 export type EventUpdate =
@@ -20,7 +20,7 @@ export type EventUpdate =
 
 export const getApplicationDirectory = (): GoogleAppsScript.Drive.Folder =>
 {
-  const foldername = abbreviatedPackageName;
+  const foldername = packageName;
   const iter = DriveApp.getFoldersByName(foldername);
   if(!iter.hasNext()){
     return DriveApp.createFolder(foldername);
@@ -35,7 +35,7 @@ export const getLastRetrievedEventListFile = (
 {
   const packageDir = getApplicationDirectory();
   const filename =
-    [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
+    [packageName, originalCalendarId, replicaCalendarId].join("-");
   const iter = packageDir.getFilesByName(filename);
   if(!iter.hasNext()){
     return packageDir.createFile(filename, "[]", "application/json");

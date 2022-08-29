@@ -105,13 +105,14 @@ var TitleFilter = /** @class */ (function () {
 
 
 ;// CONCATENATED MODULE: ./src/Constant.ts
+var packageName = "google-calendar-forwarding-gas";
 var abbreviatedPackageName = "gcal-forwarding";
 
 ;// CONCATENATED MODULE: ./src/Sync.ts
 
 
 var getApplicationDirectory = function () {
-    var foldername = abbreviatedPackageName;
+    var foldername = packageName;
     var iter = DriveApp.getFoldersByName(foldername);
     if (!iter.hasNext()) {
         return DriveApp.createFolder(foldername);
@@ -120,7 +121,7 @@ var getApplicationDirectory = function () {
 };
 var getLastRetrievedEventListFile = function (originalCalendarId, replicaCalendarId) {
     var packageDir = getApplicationDirectory();
-    var filename = [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
+    var filename = [packageName, originalCalendarId, replicaCalendarId].join("-");
     var iter = packageDir.getFilesByName(filename);
     if (!iter.hasNext()) {
         return packageDir.createFile(filename, "[]", "application/json");
