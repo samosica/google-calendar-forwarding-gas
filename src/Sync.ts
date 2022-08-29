@@ -1,6 +1,6 @@
 import { SimplifiedCalendarEvent, simplifyCalendarEvent, compareCalendarEvent } from "./SimplifiedCalendarEvent";
 import { CalendarEventFilter } from "./CalendarEventFilter";
-import { packageName } from "./Constant";
+import { abbreviatedPackageName } from "./Constant";
 
 // An update of an event in an original calendar
 export type EventUpdate =
@@ -23,7 +23,7 @@ export const getLastRetrievedEventListFilename = (
   replicaCalendarId: string,
 ): string =>
 {
-  return [packageName, originalCalendarId, replicaCalendarId].join("-");
+  return [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
 }
 
 export const getLastRetrievedEventList = (
@@ -144,7 +144,7 @@ export const copyEvent = (
         // not inherit guests from event
       }
     );
-  replicaEvent.setTag([packageName, "original-event-id"].join("-"), event.getId());
+  replicaEvent.setTag([abbreviatedPackageName, "original-event-id"].join("-"), event.getId());
   return replicaEvent;
 }
 
@@ -159,7 +159,7 @@ export const syncEventUpdate = (
 
   for(const replicaEvent of replicaEvents){
     // The ID of an event that the replica event refers to
-    const originalEventId = replicaEvent.getTag([packageName, "original-event-id"].join("-"));
+    const originalEventId = replicaEvent.getTag([abbreviatedPackageName, "original-event-id"].join("-"));
 
     const update = eventUpdates.find((u) =>
       startTime.getTime() <= u.event.getStartTime().getTime() &&
