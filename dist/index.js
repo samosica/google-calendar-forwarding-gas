@@ -274,9 +274,9 @@ var syncEventUpdate = function (eventUpdates, replicaCalendar, startTime, endTim
         }
     }
 };
-var sync = function (originalCalendar, replicaCalendar, options) {
+var sync = function (originalCalendar, replicaCalendar, startTime, endTime, options) {
     var before = getLastRetrievedEventList(originalCalendar.getId(), replicaCalendar.getId());
-    var after = originalCalendar.getEvents(options.startTime, options.endTime);
+    var after = originalCalendar.getEvents(startTime, endTime);
     var eventUpdates = getEventUpdates(before, after);
     var filterFn = function (u) {
         if (!options.filter) {
@@ -290,7 +290,7 @@ var sync = function (originalCalendar, replicaCalendar, options) {
         }
     };
     var filteredEventUpdates = eventUpdates.filter(filterFn);
-    syncEventUpdate(filteredEventUpdates, replicaCalendar, options.startTime, options.endTime);
+    syncEventUpdate(filteredEventUpdates, replicaCalendar, startTime, endTime);
     saveLastRetrievedEventList(originalCalendar.getId(), replicaCalendar.getId(), after);
 };
 

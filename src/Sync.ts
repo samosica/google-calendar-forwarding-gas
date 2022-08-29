@@ -236,15 +236,15 @@ export const syncEventUpdate = (
 }
 
 export type SyncOptions = {
-  startTime: Date,
-  endTime: Date,
   filter?: CalendarEventFilter | CalendarEventFilter[],
 };
 
 export const sync = (
   originalCalendar: GoogleAppsScript.Calendar.Calendar,
   replicaCalendar: GoogleAppsScript.Calendar.Calendar,
-  options: SyncOptions
+  startTime: Date,
+  endTime: Date,
+  options: SyncOptions,
 ) =>
 {
   const before = getLastRetrievedEventList(
@@ -252,7 +252,7 @@ export const sync = (
     replicaCalendar.getId(),
   );
   const after =
-    originalCalendar.getEvents(options.startTime, options.endTime);
+    originalCalendar.getEvents(startTime, endTime);
   const eventUpdates = getEventUpdates(before, after);
   const filterFn = (u: EventUpdate) => {
     if(!options.filter){
@@ -270,8 +270,8 @@ export const sync = (
   syncEventUpdate(
     filteredEventUpdates,
     replicaCalendar,
-    options.startTime,
-    options.endTime,
+    startTime,
+    endTime,
   );
 
   saveLastRetrievedEventList(
