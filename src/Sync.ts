@@ -26,6 +26,10 @@ export const getLastRetrievedEventListFilename = (
   return [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
 }
 
+const isNotNullish =
+  (value: unknown): value is Record<string, unknown> =>
+  value != null;
+
 export const getLastRetrievedEventList = (
   originalCalendarId: string,
   replicaCalendarId: string,
@@ -39,8 +43,35 @@ export const getLastRetrievedEventList = (
   
   const file = iter.next();
   const rawList = JSON.parse(file.getBlob().getDataAsString());
-  const list = rawList.map((props: unknown) =>
-    new SimplifiedCalendarEvent(props as ConstructorParameters<typeof SimplifiedCalendarEvent>[0]));
+  const list = rawList.map((props: unknown): SimplifiedCalendarEvent => {
+    // Check whether props has all arguments of SimplifiedCalendarEvent constructor
+    // If not, raise an error
+    if(
+      isNotNullish(props) &&
+      typeof props.id === "string" &&
+      typeof props.title === "string" &&
+      typeof props.startTime === "string" &&
+      typeof props.endTime === "string" &&
+      typeof props.description === "string" &&
+      typeof props.location === "string" &&
+      typeof props.lastUpdated === "string"
+    )
+    {
+      return new SimplifiedCalendarEvent({
+        id: props.id,
+        title: props.title,
+        // startTime, endTime, and lastUpdated in props are strings
+        // convert them into Date objects
+        startTime: new Date(props.startTime),
+        endTime: new Date(props.endTime),
+        description: props.description,
+        location: props.location,
+        lastUpdated: new Date(props.lastUpdated),
+      });
+    }
+
+    throw new Error(`${filename}: invalid format`);
+  });
 
   return list;
 }
