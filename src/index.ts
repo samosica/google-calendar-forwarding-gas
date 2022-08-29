@@ -10,7 +10,8 @@ import {
 import {
   EventUpdate,
   SyncOptions,
-  getLastRetrievedEventListFilename,
+  getApplicationDirectory,
+  getLastRetrievedEventListFile,
   getLastRetrievedEventList,
   saveLastRetrievedEventList,
   getEventUpdates,
@@ -24,7 +25,8 @@ declare const global: { [key: string]: any };
 
 global.TitleFilter = TitleFilter;
 
-global.getLastRetrievedEventListFilename = getLastRetrievedEventListFilename;
+global.getApplicationDirectory = getApplicationDirectory;
+global.getLastRetrievedEventListFile = getLastRetrievedEventListFile;
 global.getLastRetrievedEventList = getLastRetrievedEventList;
 global.saveLastRetrievedEventList = saveLastRetrievedEventList;
 global.getEventUpdates = getEventUpdates;
@@ -40,7 +42,8 @@ export {
   TitleFilter,
   EventUpdate,
   SyncOptions,
-  getLastRetrievedEventListFilename,
+  getApplicationDirectory,
+  getLastRetrievedEventListFile,
   getLastRetrievedEventList,
   saveLastRetrievedEventList,
   getEventUpdates,

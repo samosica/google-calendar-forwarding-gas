@@ -1,6 +1,8 @@
 function TitleFilter() {
 }
-function getLastRetrievedEventListFilename() {
+function getApplicationDirectory() {
+}
+function getLastRetrievedEventListFile() {
 }
 function getLastRetrievedEventList() {
 }
@@ -34,7 +36,7 @@ function sync() {
 /************************************************************************/
 var __webpack_exports__ = {};
 
-// UNUSED EXPORTS: SimplifiedCalendarEvent, TitleFilter, compareCalendarEvent, copyEvent, getEventUpdates, getLastRetrievedEventList, getLastRetrievedEventListFilename, saveLastRetrievedEventList, simplifyCalendarEvent, sync, syncEventUpdate
+// UNUSED EXPORTS: SimplifiedCalendarEvent, TitleFilter, compareCalendarEvent, copyEvent, getApplicationDirectory, getEventUpdates, getLastRetrievedEventList, getLastRetrievedEventListFile, saveLastRetrievedEventList, simplifyCalendarEvent, sync, syncEventUpdate
 
 ;// CONCATENATED MODULE: ./src/SimplifiedCalendarEvent.ts
 // A quite simple version of GoogleAppsScript.Calendar.CalendarEvent
@@ -108,20 +110,32 @@ var abbreviatedPackageName = "gcal-forwarding";
 ;// CONCATENATED MODULE: ./src/Sync.ts
 
 
-var getLastRetrievedEventListFilename = function (originalCalendarId, replicaCalendarId) {
-    return [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
+var getApplicationDirectory = function () {
+    var foldername = abbreviatedPackageName;
+    var iter = DriveApp.getFoldersByName(foldername);
+    if (!iter.hasNext()) {
+        return DriveApp.createFolder(foldername);
+    }
+    return iter.next();
+};
+var getLastRetrievedEventListFile = function (originalCalendarId, replicaCalendarId) {
+    var packageDir = getApplicationDirectory();
+    var filename = [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
+    var iter = packageDir.getFilesByName(filename);
+    if (!iter.hasNext()) {
+        return packageDir.createFile(filename, "[]", "application/json");
+    }
+    return iter.next();
 };
 var isNotNullish = function (value) {
     return value != null;
 };
 var getLastRetrievedEventList = function (originalCalendarId, replicaCalendarId) {
-    var filename = getLastRetrievedEventListFilename(originalCalendarId, replicaCalendarId);
-    var iter = DriveApp.getFilesByName(filename);
-    if (!iter.hasNext()) {
-        return [];
-    }
-    var file = iter.next();
+    var file = getLastRetrievedEventListFile(originalCalendarId, replicaCalendarId);
     var rawList = JSON.parse(file.getBlob().getDataAsString());
+    if (!Array.isArray(rawList)) {
+        throw new Error("${file.getName()}: invalid format");
+    }
     var list = rawList.map(function (props) {
         // Check whether props has all arguments of SimplifiedCalendarEvent constructor
         // If not, raise an error
@@ -145,19 +159,13 @@ var getLastRetrievedEventList = function (originalCalendarId, replicaCalendarId)
                 lastUpdated: new Date(props.lastUpdated)
             });
         }
-        throw new Error("".concat(filename, ": invalid format"));
+        throw new Error("".concat(file.getName(), ": invalid format"));
     });
     return list;
 };
 var saveLastRetrievedEventList = function (originalCalendarId, replicaCalendarId, eventList) {
-    var filename = getLastRetrievedEventListFilename(originalCalendarId, replicaCalendarId);
-    var iter = DriveApp.getFilesByName(filename);
+    var file = getLastRetrievedEventListFile(originalCalendarId, replicaCalendarId);
     var content = JSON.stringify(eventList.map(simplifyCalendarEvent));
-    if (!iter.hasNext()) {
-        DriveApp.createFile(filename, content);
-        return;
-    }
-    var file = iter.next();
     file.setContent(content);
 };
 var getEventUpdates = function (before, after) {
@@ -291,7 +299,8 @@ var sync = function (originalCalendar, replicaCalendar, options) {
 
 
 __webpack_require__.g.TitleFilter = TitleFilter;
-__webpack_require__.g.getLastRetrievedEventListFilename = getLastRetrievedEventListFilename;
+__webpack_require__.g.getApplicationDirectory = getApplicationDirectory;
+__webpack_require__.g.getLastRetrievedEventListFile = getLastRetrievedEventListFile;
 __webpack_require__.g.getLastRetrievedEventList = getLastRetrievedEventList;
 __webpack_require__.g.saveLastRetrievedEventList = saveLastRetrievedEventList;
 __webpack_require__.g.getEventUpdates = getEventUpdates;

@@ -18,12 +18,29 @@ export type EventUpdate =
     event: GoogleAppsScript.Calendar.CalendarEvent,
   };
 
-export const getLastRetrievedEventListFilename = (
+export const getApplicationDirectory = (): GoogleAppsScript.Drive.Folder =>
+{
+  const foldername = abbreviatedPackageName;
+  const iter = DriveApp.getFoldersByName(foldername);
+  if(!iter.hasNext()){
+    return DriveApp.createFolder(foldername);
+  }
+  return iter.next();
+}
+
+export const getLastRetrievedEventListFile = (
   originalCalendarId: string,
   replicaCalendarId: string,
-): string =>
+): GoogleAppsScript.Drive.File =>
 {
-  return [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
+  const packageDir = getApplicationDirectory();
+  const filename =
+    [abbreviatedPackageName, originalCalendarId, replicaCalendarId].join("-");
+  const iter = packageDir.getFilesByName(filename);
+  if(!iter.hasNext()){
+    return packageDir.createFile(filename, "[]", "application/json");
+  }
+  return iter.next();
 }
 
 const isNotNullish =
@@ -35,14 +52,13 @@ export const getLastRetrievedEventList = (
   replicaCalendarId: string,
 ): SimplifiedCalendarEvent[] =>
 {
-  const filename = getLastRetrievedEventListFilename(originalCalendarId, replicaCalendarId);
-  const iter = DriveApp.getFilesByName(filename);
-  if(!iter.hasNext()){
-    return [];
-  }
-  
-  const file = iter.next();
+  const file = getLastRetrievedEventListFile(originalCalendarId, replicaCalendarId);
   const rawList = JSON.parse(file.getBlob().getDataAsString());
+
+  if(!Array.isArray(rawList)){
+    throw new Error("${file.getName()}: invalid format");
+  }
+
   const list = rawList.map((props: unknown): SimplifiedCalendarEvent => {
     // Check whether props has all arguments of SimplifiedCalendarEvent constructor
     // If not, raise an error
@@ -70,7 +86,7 @@ export const getLastRetrievedEventList = (
       });
     }
 
-    throw new Error(`${filename}: invalid format`);
+    throw new Error(`${file.getName()}: invalid format`);
   });
 
   return list;
@@ -82,16 +98,8 @@ export const saveLastRetrievedEventList = (
   eventList: GoogleAppsScript.Calendar.CalendarEvent[],
 ) =>
 {
-  const filename = getLastRetrievedEventListFilename(originalCalendarId, replicaCalendarId);
-  const iter = DriveApp.getFilesByName(filename);
+  const file = getLastRetrievedEventListFile(originalCalendarId, replicaCalendarId);
   const content = JSON.stringify(eventList.map(simplifyCalendarEvent));
-
-  if(!iter.hasNext()){
-    DriveApp.createFile(filename, content);
-    return;
-  }
-  
-  const file = iter.next();
   file.setContent(content);
 }
 
